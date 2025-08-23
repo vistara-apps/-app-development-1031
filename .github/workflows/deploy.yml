@@ -9,6 +9,8 @@ on:
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
+    env:
+      LINEAR_API_KEY: ${{ secrets.LINEAR_API_KEY }}
     steps:
     - uses: actions/checkout@v4
     
@@ -30,3 +32,17 @@ jobs:
         tags: ${{ env.IMAGE_TAG }}
         cache-from: type=gha
         cache-to: type=gha,mode=max
+        build-args: |
+          LINEAR_API_KEY=${{ secrets.LINEAR_API_KEY }}
+
+    - name: Update Linear Issue Status
+      if: success() && github.event_name == 'push' && github.ref == 'refs/heads/main'
+      run: |
+        # Update Linear issue status using the API key
+        # This is a placeholder for the actual Linear API call
+        echo "Updating Linear issue status for project ID: e276ed3f-5540-43e3-b716-fa87a57387ed"
+        curl -X POST \
+          -H "Content-Type: application/json" \
+          -H "Authorization: ${{ secrets.LINEAR_API_KEY }}" \
+          -d '{"query":"mutation { issueUpdate(id: \"e276ed3f-5540-43e3-b716-fa87a57387ed\", input: { stateId: \"completed\" }) { success } }"}' \
+          https://api.linear.app/graphql
