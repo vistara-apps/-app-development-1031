@@ -4,6 +4,7 @@ import Navigation from './components/Navigation'
 import HomePage from './pages/HomePage'
 import DeviceSetupPage from './pages/DeviceSetupPage'
 import AppConfigPage from './pages/AppConfigPage'
+import BookingIntegrationPage from './pages/BookingIntegrationPage'
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/device-setup" element={<DeviceSetupPage />} />
         <Route path="/app-config" element={<AppConfigPage />} />
+        <Route path="/booking-integration" element={<BookingIntegrationPage />} />
       </Routes>
     </div>
   )
