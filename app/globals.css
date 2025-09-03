@@ -1,0 +1,90 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: hsl(210, 25%, 95%);
+    --foreground: hsl(210, 25%, 20%);
+
+    --card: hsl(210, 25%, 100%);
+    --card-foreground: hsl(210, 25%, 20%);
+
+    --popover: hsl(210, 25%, 100%);
+    --popover-foreground: hsl(210, 25%, 20%);
+
+    --primary: hsl(210, 100%, 75%);
+    --primary-foreground: hsl(210, 25%, 20%);
+
+    --primary-custom: hsl(210, 100%, 75%);
+
+    --secondary: hsl(30, 100%, 70%);
+    --secondary-foreground: hsl(210, 25%, 20%);
+
+    --muted: hsl(210, 25%, 90%);
+    --muted-foreground: hsl(210, 25%, 40%);
+
+    --accent: hsl(210, 25%, 90%);
+    --accent-foreground: hsl(210, 25%, 20%);
+
+    --destructive: hsl(0, 100%, 65%);
+    --destructive-foreground: hsl(210, 25%, 100%);
+
+    --border: hsl(210, 25%, 85%);
+    --input: hsl(210, 25%, 85%);
+    --ring: hsl(210, 25%, 20%);
+
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 16px;
+    --radius-full: 9999px;
+
+    --shadow-card: 0 4px 12px hsla(210, 25%, 20%, 0.08);
+  }
+
+  .dark {
+    --background: hsl(210, 25%, 10%);
+    --foreground: hsl(210, 25%, 95%);
+
+    --card: hsl(210, 25%, 15%);
+    --card-foreground: hsl(210, 25%, 95%);
+
+    --popover: hsl(210, 25%, 15%);
+    --popover-foreground: hsl(210, 25%, 95%);
+
+    --primary: hsl(210, 100%, 75%);
+    --primary-foreground: hsl(210, 25%, 10%);
+
+    --primary-custom: hsl(210, 100%, 75%);
+
+    --secondary: hsl(30, 100%, 70%);
+    --secondary-foreground: hsl(210, 25%, 10%);
+
+    --muted: hsl(210, 25%, 20%);
+    --muted-foreground: hsl(210, 25%, 70%);
+
+    --accent: hsl(210, 25%, 20%);
+    --accent-foreground: hsl(210, 25%, 95%);
+
+    --destructive: hsl(0, 100%, 65%);
+    --destructive-foreground: hsl(210, 25%, 95%);
+
+    --border: hsl(210, 25%, 25%);
+    --input: hsl(210, 25%, 25%);
+    --ring: hsl(210, 25%, 85%);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+.shadow-card {
+  box-shadow: var(--shadow-card);
+}
+
