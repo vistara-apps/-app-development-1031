@@ -9,6 +9,17 @@ RUN if [ -f package-lock.json ]; then npm ci; else npm install; fi
 # Copy application code
 COPY . .
 
+# Create .env file from .env.example if it doesn't exist
+RUN if [ ! -f .env ]; then \
+    echo "Creating .env file from .env.example with placeholder values"; \
+    cp .env.example .env && \
+    sed -i 's/your_privy_app_id/placeholder_privy_app_id/g' .env && \
+    sed -i 's/your_pinata_api_key/placeholder_pinata_api_key/g' .env && \
+    sed -i 's/your_pinata_secret_key/placeholder_pinata_secret_key/g' .env && \
+    sed -i 's/your_openai_api_key/placeholder_openai_api_key/g' .env && \
+    sed -i 's/your_neynar_api_key/placeholder_neynar_api_key/g' .env; \
+fi
+
 # Build application
 RUN npm run build
 
