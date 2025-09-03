@@ -1,0 +1,43 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-bg text-base font-normal leading-7;
+  }
+  h1 {
+    @apply text-6xl font-extrabold;
+  }
+  h2 {
+    @apply text-2xl font-bold;
+  }
+}
+
+@layer components {
+  .container {
+    @apply max-w-screen-xl mx-auto px-4;
+  }
+  .app-header {
+    @apply py-4 bg-surface shadow-card;
+  }
+  .recommendation-card {
+    @apply bg-surface p-md rounded-lg shadow-card transition-all duration-200 ease-out;
+  }
+  .recommendation-card.expanded {
+    @apply shadow-modal;
+  }
+  .map-pin {
+    @apply w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 ease-out;
+  }
+  .map-pin.active {
+    @apply bg-primary text-white;
+  }
+  .map-pin.inactive {
+    @apply bg-surface text-primary border border-primary;
+  }
+  .vibe-tag {
+    @apply inline-flex px-2 py-1 rounded-md bg-accent/10 text-accent text-sm font-medium;
+  }
+}
+
