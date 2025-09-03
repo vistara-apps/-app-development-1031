@@ -3,7 +3,8 @@ WORKDIR /app
 
 # Install dependencies
 COPY package.json package-lock.json* ./
-RUN npm ci
+# Use npm install instead of npm ci if package-lock.json doesn't exist
+RUN if [ -f package-lock.json ]; then npm ci; else npm install; fi
 
 # Copy application code
 COPY . .
@@ -34,3 +35,4 @@ EXPOSE 3000
 
 # Start the application
 CMD ["npm", "start"]
+
