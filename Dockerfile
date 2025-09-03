@@ -1,14 +1,36 @@
-FROM --platform=linux/amd64 registry.vistara.dev/zara-base:latest AS builder
+FROM --platform=linux/amd64 node:18-alpine AS builder
 WORKDIR /app
-COPY package*.json ./
-USER root
-COPY . .
-RUN npm i && npm run build
 
-FROM --platform=linux/amd64 registry.vistara.dev/zara-base:latest AS runner
+# Install dependencies
+COPY package.json package-lock.json* ./
+RUN npm ci
+
+# Copy application code
+COPY . .
+
+# Build application
+RUN npm run build
+
+# Production image
+FROM --platform=linux/amd64 node:18-alpine AS runner
 WORKDIR /app
+
 ENV NODE_ENV=production
-COPY --from=builder /app/dist ./dist
-USER appuser
+
+# Copy necessary files from builder
+COPY --from=builder /app/next.config.js ./
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/package.json ./package.json
+COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/node_modules ./node_modules
+
+# Create a non-root user and switch to it
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 nextjs && \
+    chown -R nextjs:nodejs /app
+USER nextjs
+
 EXPOSE 3000
-CMD ["serve", "-s", "dist", "-l", "3000"]
+
+# Start the application
+CMD ["npm", "start"]
