@@ -20,6 +20,8 @@ ENV NODE_ENV=production
 
 # Copy necessary files from builder
 COPY --from=builder /app/next.config.js ./
+# Copy public directory if it exists
+RUN mkdir -p ./public
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/.next ./.next
@@ -35,4 +37,3 @@ EXPOSE 3000
 
 # Start the application
 CMD ["npm", "start"]
-
