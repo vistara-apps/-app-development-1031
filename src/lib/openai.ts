@@ -2,7 +2,7 @@ import OpenAI from 'openai';
 import type { AIGenerationRequest } from '@/types';
 
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+  apiKey: process.env.OPENAI_API_KEY || 'dummy-key-for-build',
 });
 
 /**
@@ -39,6 +39,50 @@ export async function generateLegalScript(request: AIGenerationRequest): Promise
   } catch (error) {
     console.error('OpenAI API error:', error);
     throw new Error('Failed to generate legal script');
+  }
+}
+
+/**
+ * Generate incident summary for documentation
+ */
+export async function generateIncidentSummary(data: {
+  location: { lat: number; lon: number; address?: string };
+  situationType: string;
+  description: string;
+  state: string;
+  language: 'en' | 'es';
+}): Promise<string> {
+  try {
+    const systemPrompt = `You are creating a professional incident summary for legal documentation.
+    Generate a clear, factual summary that includes:
+    - Location and time information
+    - Situation type and description
+    - Relevant legal context for the state
+    - Professional, neutral tone
+    
+    Language: ${data.language === 'es' ? 'Spanish' : 'English'}
+    Keep it concise but comprehensive for legal purposes.`;
+
+    const userPrompt = `Create an incident summary for:
+    Location: ${data.location.address || `${data.location.lat}, ${data.location.lon}`}
+    State: ${data.state}
+    Situation Type: ${data.situationType}
+    Description: ${data.description}`;
+
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-3.5-turbo',
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt }
+      ],
+      max_tokens: 400,
+      temperature: 0.2,
+    });
+
+    return completion.choices[0]?.message?.content || 'Unable to generate incident summary.';
+  } catch (error) {
+    console.error('OpenAI API error:', error);
+    throw new Error('Failed to generate incident summary');
   }
 }
 
@@ -118,7 +162,7 @@ export async function simplifyLegalText(text: string, language: 'en' | 'es' = 'e
 /**
  * Generate state-specific legal guide content
  */
-export async function generateLegalGuide(state: string, language: 'en' | 'es' = 'en'): Promise<string> {
+export async function generateLegalGuide(state: string, topic?: string, language: 'en' | 'es' = 'en'): Promise<string> {
   try {
     const systemPrompt = `You are a legal expert creating citizen rights guides for police interactions.
     
@@ -130,11 +174,13 @@ export async function generateLegalGuide(state: string, language: 'en' | 'es' = 
     - Arrest procedures
     - Contact information for legal aid
     
+    ${topic ? `Focus specifically on: ${topic}` : ''}
+    
     Format: Clear sections with bullet points
     Language: ${language === 'es' ? 'Spanish' : 'English'}
     Length: 800-1000 words maximum`;
 
-    const userPrompt = `Create a legal rights guide for ${state} state covering police interactions and citizen rights.`;
+    const userPrompt = `Create a legal rights guide for ${state} state covering ${topic || 'police interactions and citizen rights'}.`;
 
     const completion = await openai.chat.completions.create({
       model: 'gpt-4',

@@ -35,7 +35,7 @@
   }
   
   body {
-    @apply bg-bg text-foreground font-sans;
+    @apply bg-background text-foreground font-sans;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
   

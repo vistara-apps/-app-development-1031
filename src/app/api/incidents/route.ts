@@ -27,10 +27,10 @@ export async function POST(request: NextRequest) {
     // Create incident report
     const incidentData: Omit<IncidentReport, 'report_id' | 'created_at'> = {
       user_id,
-      timestamp: new Date(),
+      timestamp: new Date().toISOString(),
       location,
       recording_url,
-      generated_card_url: null,
+      generated_card_url: undefined,
     };
 
     const { data: savedIncident, error: saveError } = await supabase
@@ -70,7 +70,7 @@ export async function POST(request: NextRequest) {
         title: `Incident Report - ${new Date().toLocaleDateString()}`,
         content: summaryContent,
         location,
-        timestamp: new Date(),
+        timestamp: new Date().toISOString(),
       });
 
       // Update incident report with card URL

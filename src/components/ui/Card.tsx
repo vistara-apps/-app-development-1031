@@ -14,6 +14,15 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
       compact: 'p-md',
     };
 
+    const { 
+      onAnimationStart, 
+      onAnimationEnd, 
+      onDragStart, 
+      onDragEnd, 
+      onDrag,
+      ...divProps 
+    } = props;
+
     return (
       <motion.div
         ref={ref}
@@ -25,7 +34,7 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.2 }}
-        {...props}
+        {...divProps}
       >
         {children}
       </motion.div>

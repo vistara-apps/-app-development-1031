@@ -26,6 +26,15 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       lg: 'h-11 px-8 text-lg',
     };
 
+    const { 
+      onAnimationStart, 
+      onAnimationEnd, 
+      onDragStart, 
+      onDragEnd, 
+      onDrag,
+      ...buttonProps 
+    } = props;
+    
     return (
       <motion.button
         ref={ref}
@@ -38,7 +47,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         disabled={disabled || isLoading}
         whileTap={{ scale: 0.98 }}
         whileHover={{ scale: 1.02 }}
-        {...props}
+        {...buttonProps}
       >
         {isLoading && (
           <svg

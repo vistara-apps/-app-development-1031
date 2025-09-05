@@ -58,67 +58,65 @@ export async function GET(request: NextRequest) {
     for (const situationType of situations) {
       try {
         // Generate both user responses and officer scripts
-        const userScripts = await generateLegalScript(
-          state,
-          situationType,
-          'user_response',
-          language as 'en' | 'es'
-        );
+        const userScripts = await generateLegalScript({
+          prompt: `Generate appropriate user responses for ${situationType} situations`,
+          context: {
+            state,
+            situation: situationType,
+            language: language as 'en' | 'es'
+          }
+        });
 
-        const officerScripts = await generateLegalScript(
-          state,
-          situationType,
-          'officer_script',
-          language as 'en' | 'es'
-        );
+        const officerScripts = await generateLegalScript({
+          prompt: `Generate typical officer scripts for ${situationType} situations`,
+          context: {
+            state,
+            situation: situationType,
+            language: language as 'en' | 'es'
+          }
+        });
 
         // Process user scripts
-        userScripts.forEach((scriptText, index) => {
-          const script: Omit<Script, 'script_id' | 'created_at' | 'updated_at'> = {
-            state,
-            situation: situationType,
-            dialogue_type: 'user_response',
-            text: scriptText,
-            language: language as 'en' | 'es',
-            order_in_sequence: index + 1,
-          };
+        const userScript: Omit<Script, 'script_id' | 'created_at' | 'updated_at'> = {
+          state,
+          situation: situationType,
+          dialogue_type: 'user_response',
+          text: userScripts,
+          language: language as 'en' | 'es',
+          order_in_sequence: 1,
+        };
 
-          // Save to database
-          supabase
-            .from('scripts')
-            .insert(script)
-            .select()
-            .single()
-            .then(({ data: savedScript, error: saveError }) => {
-              if (!saveError && savedScript) {
-                generatedScripts.push(savedScript);
-              }
-            });
-        });
+        // Save user script to database
+        const { data: savedUserScript, error: userError } = await supabase
+          .from('scripts')
+          .insert(userScript)
+          .select()
+          .single();
+
+        if (!userError && savedUserScript) {
+          generatedScripts.push(savedUserScript);
+        }
 
         // Process officer scripts
-        officerScripts.forEach((scriptText, index) => {
-          const script: Omit<Script, 'script_id' | 'created_at' | 'updated_at'> = {
-            state,
-            situation: situationType,
-            dialogue_type: 'officer_script',
-            text: scriptText,
-            language: language as 'en' | 'es',
-            order_in_sequence: index + 1,
-          };
+        const officerScript: Omit<Script, 'script_id' | 'created_at' | 'updated_at'> = {
+          state,
+          situation: situationType,
+          dialogue_type: 'officer_script',
+          text: officerScripts,
+          language: language as 'en' | 'es',
+          order_in_sequence: 1,
+        };
 
-          // Save to database
-          supabase
-            .from('scripts')
-            .insert(script)
-            .select()
-            .single()
-            .then(({ data: savedScript, error: saveError }) => {
-              if (!saveError && savedScript) {
-                generatedScripts.push(savedScript);
-              }
-            });
-        });
+        // Save officer script to database
+        const { data: savedOfficerScript, error: officerError } = await supabase
+          .from('scripts')
+          .insert(officerScript)
+          .select()
+          .single();
+
+        if (!officerError && savedOfficerScript) {
+          generatedScripts.push(savedOfficerScript);
+        }
       } catch (error) {
         console.error(`Error generating scripts for ${situationType}:`, error);
         continue;
@@ -158,40 +156,43 @@ export async function POST(request: NextRequest) {
     }
 
     // Generate scripts for the specific situation and dialogue type
-    const scripts = await generateLegalScript(
-      state,
-      situation,
-      dialogue_type,
-      language
-    );
+    const scripts = await generateLegalScript({
+      prompt: `Generate ${dialogue_type === 'user_response' ? 'appropriate user responses' : 'typical officer scripts'} for ${situation} situations`,
+      context: {
+        state,
+        situation,
+        language: language as 'en' | 'es'
+      }
+    });
 
     const generatedScripts: Script[] = [];
 
-    for (let i = 0; i < scripts.length; i++) {
-      const script: Omit<Script, 'script_id' | 'created_at' | 'updated_at'> = {
-        state,
-        situation,
-        dialogue_type,
-        text: scripts[i],
-        language,
-        order_in_sequence: i + 1,
-      };
+    const script: Omit<Script, 'script_id' | 'created_at' | 'updated_at'> = {
+      state,
+      situation,
+      dialogue_type,
+      text: scripts,
+      language,
+      order_in_sequence: 1,
+    };
 
-      // Save to database
-      const { data: savedScript, error: saveError } = await supabase
-        .from('scripts')
-        .insert(script)
-        .select()
-        .single();
+    // Save to database
+    const { data: savedScript, error: saveError } = await supabase
+      .from('scripts')
+      .insert(script)
+      .select()
+      .single();
 
-      if (saveError) {
-        console.error('Error saving script:', saveError);
-        continue;
-      }
+    if (saveError) {
+      console.error('Error saving script:', saveError);
+      return NextResponse.json(
+        { error: 'Failed to save script' },
+        { status: 500 }
+      );
+    }
 
-      if (savedScript) {
-        generatedScripts.push(savedScript);
-      }
+    if (savedScript) {
+      generatedScripts.push(savedScript);
     }
 
     return NextResponse.json({ scripts: generatedScripts });
